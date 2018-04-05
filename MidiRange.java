@@ -2,8 +2,7 @@ package com.lisebellamy.util;
 import java.util.List;
 
 /**
- * Represents an intersection of ranges of values between 0-127
- * inclusive.
+ * Represents an intersection of ranges of integer values.
  */
 public interface MidiRange
 {
