@@ -5,6 +5,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import org.codehaus.janino.SimpleCompiler;
 
+/* Uses janino to generate a class for matching the ranges.
+
+   Note that currently it is not using most of the comparators. The
+   problem is equivalent to the sparse array problem, and a
+   heuristic-based search must be done to find a near-optimal way to
+   represent the set of ranges.
+
+   Arrays in Java are slow; the array-based lookup is equivalent in
+   performance to about 6 comparsions. */
+
+   
 public class StdMidiRange
     implements MidiRange
 {
@@ -19,7 +30,9 @@ public class StdMidiRange
     }
 
     private RangeComparator myComparator = null;
-    
+
+    /* Is invoked if a comparator has not been generated for the current
+       range set. Avoids an unnecessary test. */
     private class NeedsComparator
 	implements RangeComparator
     {
@@ -39,7 +52,7 @@ public class StdMidiRange
 
     public List<DiscreteRange> getDiscreteRangeRep ()
     {
-	this.optimizeRanges ();
+	this.coalesceRanges ();
 	List<DiscreteRange> res = new ArrayList<DiscreteRange> ();
 	for (DiscreteRange r : this.ranges)
 	    {
@@ -50,7 +63,7 @@ public class StdMidiRange
 
     public String getStringRep ()
     {
-	this.optimizeRanges ();
+	this.coalesceRanges ();
 	StringBuilder res = new StringBuilder ();
 	for (DiscreteRange range : this.ranges)
 	    {
@@ -235,12 +248,14 @@ public class StdMidiRange
 	this.addRange (new StdDiscreteRange (value, value));
     }
 
+    /* Sigh. Why couldn't they have included something similar as a
+     * builtin? */
     private static int max (int i1, int i2)
     {
 	return (i1 > i2) ? i1 : i2;
     }
 
-    private void optimizeRanges ()
+    private void coalesceRanges ()
     {
 	if (this.finalized)
 	    {
@@ -296,6 +311,7 @@ public class StdMidiRange
 	    }
     }
 
+    /* This nasty mess recursively generates a binary search comparator. */
     private String makeMultipleComparator (List<DiscreteRange> ranges,
 					   boolean hasLowerBound,
 					   int lowerBound,
@@ -594,7 +610,7 @@ public class StdMidiRange
     {
 	if (! this.finalized)
 	    {
-		this.optimizeRanges ();
+		this.coalesceRanges ();
 	    }
 	
 	if (this.ranges.size () == 1)
@@ -614,7 +630,7 @@ public class StdMidiRange
 
     public void writeInto (StructuredData node)
     {
-	this.optimizeRanges ();
+	this.coalesceRanges ();
 	for (StdDiscreteRange range : this.ranges)
 	    {
 		node.addData (range.getStringRep ());
