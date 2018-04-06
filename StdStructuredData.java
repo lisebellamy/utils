@@ -5,6 +5,52 @@ import java.util.HashMap;
 import java.util.Set;
 import java.io.BufferedWriter;
 import java.io.BufferedReader;
+
+/* The data storage format:
+
+   nodename {
+     nodename {
+       ;dataa
+       ;datab
+     }
+   }
+
+A packed representation:
+nodename{nodename{;dataa
+;datab
+}}
+
+It is designed to be easily edited by users when dealing with text.
+
+Nodenames may be nested any number of levels.
+
+Whitespace is optional.
+
+Nodenames are from the set [0-9A-Za-z_].
+
+A semicolon marks the start of data, and everything up to the newline
+is considered part of the data. Subsequent semicolons append a newline
+to the data.
+
+This uses *newline*, not the system EOL. Arbitrary choice which avoids
+quoting (assuming sending binary data is not an issue).
+
+Multiple data chunks may be associated with a nodename:
+  nodename {
+    {
+      ;d1a
+      ;d1b
+    }
+    {
+      ;d2a
+      ;d2b
+    }
+  }
+
+Data nodes are nameless. If only one data chunk is present, the braces
+are optional.
+*/
+
    
 public class StdStructuredData
     implements StructuredData

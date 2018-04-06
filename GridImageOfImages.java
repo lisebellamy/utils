@@ -1,6 +1,5 @@
 package com.lisebellamy.util;
 
-import com.lisebellamy.legocontrol.MyControlFileReader;
 import java.awt.image.BufferedImage;
 
 import java.util.Timer;
